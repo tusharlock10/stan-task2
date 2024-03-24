@@ -30,7 +30,7 @@ type Client struct {
 }
 
 // Function to start connections and handle them
-func Chat(w http.ResponseWriter, r *http.Request) {
+func ChatHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := websocket.Accept(w, r, nil)
 	if err != nil {
 		fmt.Printf("Error accepting connection: %v\n", err)
@@ -61,7 +61,7 @@ func handleConnection(r *http.Request, conn *websocket.Conn) {
 
 	// store the new connection
 	client := &Client{Username: username, Conn: conn}
-	clients.Store(username, client)
+	triggerClientConnect(client)
 
 	handleClient(client)
 }
@@ -73,7 +73,7 @@ func handleClient(client *Client) {
 		err := wsjson.Read(context.Background(), client.Conn, &msg)
 		if err != nil {
 			// disconnect the client if incorrect data is received
-			clients.Delete(client.Username)
+			triggerClientDisconnect(client)
 			client.Conn.Close(websocket.StatusUnsupportedData, "Unable to parse data")
 			break
 		}
@@ -97,4 +97,16 @@ func broadcast(msg *Message) {
 		}
 		return true
 	})
+}
+
+// Triggers when a client is connected
+func triggerClientConnect(client *Client) {
+	clients.Store(client.Username, client)
+	connectedClients.Inc()
+}
+
+// Triggers when a client is disconnected
+func triggerClientDisconnect(client *Client) {
+	clients.Delete(client.Username)
+	connectedClients.Dec()
 }
