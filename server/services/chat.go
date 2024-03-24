@@ -84,6 +84,7 @@ func handleClient(client *Client) {
 
 		fmt.Printf("Received message: %s - by %s\n", msg.Text, msg.Username)
 		broadcast(&msg)
+		InsertMessage(&msg)
 	}
 }
 

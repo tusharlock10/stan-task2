@@ -7,6 +7,8 @@ import (
 )
 
 func main() {
+	services.InitMongoDB()
+
 	http.HandleFunc("/chat", services.Chat)
 
 	fmt.Println("Server started on :8080")
