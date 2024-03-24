@@ -7,7 +7,10 @@ import (
 )
 
 func main() {
-	services.InitMongoDB()
+	err := services.InitMongoDB()
+	if err != nil {
+		return
+	}
 
 	http.HandleFunc("/chat", services.Chat)
 

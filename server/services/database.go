@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
-	"log"
+	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -13,17 +13,22 @@ var mongoClient *mongo.Client
 var messagesCollection *mongo.Collection
 
 // Init MongoDB Client
-func InitMongoDB() {
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+func InitMongoDB() error {
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017").SetConnectTimeout(10 * time.Second)
 
-	client, err := mongo.Connect(context.TODO(), clientOptions)
+	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	if err := client.Ping(context.Background(), nil); err != nil {
+		return err
+	}
+
 	mongoClient = client
 	messagesCollection = mongoClient.Database("chatapp").Collection("messages")
 
 	fmt.Println("Database connection successful")
+	return nil
 }
 
 // insert the message into database
