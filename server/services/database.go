@@ -15,7 +15,7 @@ var messagesCollection *mongo.Collection
 
 // Init MongoDB Client
 func InitMongoDB() error {
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017").SetConnectTimeout(10 * time.Second)
+	clientOptions := options.Client().ApplyURI("mongodb://mongodb:27017").SetConnectTimeout(10 * time.Second)
 
 	client, err := mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
@@ -38,7 +38,7 @@ func InsertMessage(msg *Message) {
 }
 
 // get last 100 messages from database
-func GetMessages() ([]Message, error) {
+func GetMessages() (*[]Message, error) {
 	var messages []Message
 
 	// setting timout of 10 seconds
@@ -55,6 +55,9 @@ func GetMessages() ([]Message, error) {
 	if err := cursor.All(ctx, &messages); err != nil {
 		return nil, err
 	}
+	if messages == nil {
+		messages = []Message{}
+	}
 
-	return messages, nil
+	return &messages, nil
 }

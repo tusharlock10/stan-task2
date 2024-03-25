@@ -31,7 +31,7 @@ type Client struct {
 
 // Function to start connections and handle them
 func ChatHandler(w http.ResponseWriter, r *http.Request) {
-	options := &websocket.AcceptOptions{OriginPatterns: []string{"localhost:3000"}}
+	options := &websocket.AcceptOptions{OriginPatterns: []string{"client:3000", "localhost:3000"}}
 	conn, err := websocket.Accept(w, r, options)
 	if err != nil {
 		fmt.Printf("Error accepting connection: %v\n", err)

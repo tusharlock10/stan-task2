@@ -1,12 +1,11 @@
-# Build binary from golang image
+# stage 1: build the executable
 FROM golang:alpine AS builder
 WORKDIR /server
-COPY server/go.mod server/go.sum ./
-RUN go mod download
 COPY server/ ./
+RUN go mod download
 RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
-# Use a Docker multi-stage build to create a lean production image
+# stage 2: deploy the executable
 FROM alpine:latest  
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
