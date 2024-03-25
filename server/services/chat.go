@@ -17,10 +17,10 @@ var clients sync.Map
 
 // Message contains the text contents and username of the sender
 type Message struct {
-	UUID      string
-	Username  string
-	CreatedAt time.Time
-	Text      string `json:"text"`
+	UUID      string    `json:"uuid"`
+	Username  string    `json:"username"`
+	CreatedAt time.Time `json:"createdAt"`
+	Text      string    `json:"text"`
 }
 
 // A client is the username with their connection
@@ -31,7 +31,8 @@ type Client struct {
 
 // Function to start connections and handle them
 func ChatHandler(w http.ResponseWriter, r *http.Request) {
-	conn, err := websocket.Accept(w, r, nil)
+	options := &websocket.AcceptOptions{OriginPatterns: []string{"localhost:3000"}}
+	conn, err := websocket.Accept(w, r, options)
 	if err != nil {
 		fmt.Printf("Error accepting connection: %v\n", err)
 		return

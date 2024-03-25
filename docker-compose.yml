@@ -1,27 +1,41 @@
-version: '3.7'
+version: '3.8'
 services:
-  prometheus:
-    image: prom/prometheus:latest
+  client:
+    build: ./client
+    ports:
+      - "3000:80"
+    depends_on:
+      - server
+
+  server:
+    build: ./server
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
     volumes:
-      - ./server/prometheus.yml:/etc/prometheus/prometheus.yml
+      - mongodb-data:/data/db
+
+  prometheus:
+    image: prom/prometheus
     ports:
       - "9090:9090"
-    command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-    networks:
-      - monitoring
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - server
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana
     ports:
-      - "3000:3000"
-    environment:
-      GF_SECURITY_ADMIN_PASSWORD: "admin"
+      - "3001:3000"
     depends_on:
       - prometheus
-    networks:
-      - monitoring
 
-networks:
-  monitoring:
-    name: monitoring_network
+volumes:
+  mongodb-data:
